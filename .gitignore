@@ -1,0 +1,35 @@
+# --- Build output ---
+cmake-build-*/
+build/
+/compile_commands.json
+
+# --- IDE ---
+.idea/
+.vscode/
+*.swp
+*~
+
+# --- Compiled artifacts (in case anything builds in-tree) ---
+*.o
+*.a
+*.so
+*.d
+*.out
+
+# --- Crash / profiling leftovers ---
+/core
+/core.[0-9]*
+vgcore.*
+perf.data*
+
+# --- Unikraft (kraft workdir, build dir, generated config) ---
+.unikraft/
+unikraft/build/
+unikraft/.config*
+
+# --- Captures ---
+# Ignore ad-hoc captures, but keep test fixtures in tests/pcaps/
+*.pcap
+*.pcapng
+!tests/pcaps/*.pcap
+!tests/pcaps/*.pcapng

@@ -1,0 +1,44 @@
+---
+# Linux kernel style (what Unikraft follows).
+Language: Cpp            # clang-format uses "Cpp" for C too
+BasedOnStyle: LLVM
+
+# Layout: tabs, 8 wide, 80 columns
+IndentWidth: 8
+TabWidth: 8
+UseTab: Always
+ContinuationIndentWidth: 8
+ColumnLimit: 80
+IndentCaseLabels: false          # case lines up with switch
+
+# Braces: functions get { on the next line, everything else on the same line
+BreakBeforeBraces: Linux
+
+# Bodies always go on their own line
+AllowShortIfStatementsOnASingleLine: Never
+AllowShortLoopsOnASingleLine: false
+AllowShortFunctionsOnASingleLine: None
+AllowShortBlocksOnASingleLine: Never
+AllowShortCaseLabelsOnASingleLine: false
+
+# C conventions
+PointerAlignment: Right            # int *p, not int* p
+SpaceAfterCStyleCast: false
+AlwaysBreakAfterReturnType: None
+
+# Alignment
+AlignConsecutiveMacros: Consecutive
+AlignTrailingComments: true
+AlignEscapedNewlines: Left
+
+# Includes: system <...> first, then project "mos/...", then everything else
+SortIncludes: CaseSensitive
+IncludeBlocks: Regroup
+IncludeCategories:
+  - Regex: '^<.*>'
+    Priority: 1
+  - Regex: '^"mos/'
+    Priority: 2
+  - Regex: '.*'
+    Priority: 3
+...
