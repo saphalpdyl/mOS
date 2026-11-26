@@ -61,7 +61,7 @@ int mos_pool_destroy(struct mos_pool *pool)
 	return 0;
 }
 
-int mos_pool_malloc(struct mos_pool *pool)
+int mos_pool_alloc(struct mos_pool *pool)
 {
 	if (!pool)
 		return -EINVAL;
@@ -76,6 +76,35 @@ int mos_pool_malloc(struct mos_pool *pool)
 	pool->n_free--;
 
 	return idx;
+}
+
+int mos_pool_alloc_batch(struct mos_pool *pool, uint32_t *idx_buf, size_t count)
+{
+	int allocated_n = 0;
+	for (size_t i = 0; i < count; i++) {
+		int idx = mos_pool_alloc(pool);
+		if (idx < 0) {
+			/* Early return on failure */
+			return allocated_n;
+		}
+
+		idx_buf[allocated_n] = idx;
+		allocated_n++;
+	}
+
+	return allocated_n;
+}
+
+int mos_pool_free_batch(struct mos_pool *pool, uint32_t *idx_buf, size_t count)
+{
+	int failures = 0;
+
+	for (size_t i = 0; i < count; i++) {
+		if (mos_pool_free(pool, idx_buf[i]) != 0)
+			failures++;
+	}
+
+	return failures;
 }
 
 int mos_pool_free(struct mos_pool *pool, uint32_t idx)

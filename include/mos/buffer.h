@@ -40,14 +40,19 @@ _Static_assert(((offsetof(struct mos_buffer, data) + MOS_BUF_HEADROOM_SIZE) %
 
 /*
  * Initializes a buffer with default values
- *
- * static inline: the body must live here in the header, so every file that
- * includes it can inline the call. There is no copy in buffer.c.
  */
 static inline void mos_buffer_init(struct mos_buffer *buf)
 {
 	buf->data_off = MOS_BUF_HEADROOM_SIZE;
 	buf->data_len = 0;
+}
+
+/*
+ * Returns pointer to data at current offset
+ */
+static inline void *mos_buffer_get_data(struct mos_buffer *buf)
+{
+	return &buf->data[buf->data_off];
 }
 
 /*
