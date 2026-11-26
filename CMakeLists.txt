@@ -22,8 +22,12 @@ target_link_libraries(mos PRIVATE fwdcore)
 add_executable(fwd_tests
         tests/test_main.c
         tests/lsan_debugger.c
+        tests/test_pool.c
+        tests/test_buffer.c
+        tests/test_common.c
 )
 
+target_include_directories(fwd_tests PUBLIC tests)
 target_link_libraries(fwd_tests PRIVATE fwdcore)
 target_compile_options(fwd_tests PRIVATE -g)
 target_link_options(fwd_tests PRIVATE)

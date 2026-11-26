@@ -38,4 +38,34 @@ _Static_assert(((offsetof(struct mos_buffer, data) + MOS_BUF_HEADROOM_SIZE) %
 		MOS_CACHE_LINE_SIZE) == 0,
 	       "packet start (data + headroom) must be cache-line aligned");
 
+/*
+ * Initializes a buffer with default values
+ *
+ * static inline: the body must live here in the header, so every file that
+ * includes it can inline the call. There is no copy in buffer.c.
+ */
+static inline void mos_buffer_init(struct mos_buffer *buf)
+{
+	buf->data_off = MOS_BUF_HEADROOM_SIZE;
+	buf->data_len = 0;
+}
+
+/*
+ * Bring the data_offset by n; returns a pointer to the start of the prepended packet
+ * Usage:
+ *	struct ip6_hdr *hdr;
+ *	hdr = mos_buffer_prepend_bytes(buf, sizeof(*hdr));
+ *	if (!hdr) {
+ *		// Not enough space
+ *	}
+ *
+ * NOTE: if called after _strip_bytes(), make sure to overwrite the prepended section completely
+ */
+void *mos_buffer_prepend_bytes(struct mos_buffer *buf, size_t n);
+
+/*
+ * Moves the offset ptr forward by n; does not remove data;
+ */
+int mos_buffer_strip_bytes(struct mos_buffer *buf, size_t n);
+
 #endif // MOS_BUFFER_H

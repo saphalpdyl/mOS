@@ -70,10 +70,10 @@ int mos_pool_malloc(struct mos_pool *pool)
 		return -ENOMEM;
 
 	int idx = (int)pool->free_idxs[pool->n_free - 1];
-	pool->n_free--;
 
-	pool->bufs[idx].data_len = 0;
-	pool->bufs[idx].data_off = MOS_BUF_HEADROOM_SIZE;
+	mos_buffer_init(&pool->bufs[idx]);
+
+	pool->n_free--;
 
 	return idx;
 }
