@@ -1,6 +1,11 @@
+/* SPDX-License-Identifier: BSD-3-Clause */
+/*
+ * Copyright (c) 2026 saphalpdyl.
+ */
 
-#include <stdio.h>
+#include "mos/buffer.h"
 
 int main(void)
 {
+	return 0;
 }
