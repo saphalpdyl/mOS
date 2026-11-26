@@ -4,31 +4,49 @@
  */
 
 #include <stdio.h>
+#include <string.h>
 
 #include "test_common.h"
-#include "tests.h"
+
+extern const struct mos_test __start_mos_tests[];
+extern const struct mos_test __stop_mos_tests[];
 
 int main(void)
 {
-	/* pool */
-	RUN(test_init_rejects_bad_args);
-	RUN(test_init_state);
-	RUN(test_destroy_twice_is_safe);
-	RUN(test_alloc_is_lifo);
-	RUN(test_alloc_until_empty);
-	RUN(test_free_out_of_order);
-	RUN(test_scrambled_free_then_realloc_all);
-	RUN(test_free_into_full_pool_is_rejected);
-	RUN(test_free_invalid_index_is_rejected);
-	RUN(test_alloc_resets_buffer);
+	const struct mos_test *t = __start_mos_tests;
+	const char *prev_group = NULL;
+	int group_failures = 0;
+	int group_items = 0;
 
-	/* buffer */
-	RUN(test_buffer_strip);
-	RUN(test_buffer_strip_invalid);
-	RUN(test_buffer_prepend);
-	RUN(test_buffer_prepend_invalid);
-	RUN(test_buffer_prepend_then_strip);
-	RUN(test_buffer_strip_then_prepend);
+#define PRINT_GROUP_END()                                                                      \
+	printf("\nGROUP %s: %d OK | %d FAILED \n\n", prev_group, group_items - group_failures, \
+	       group_failures)
+
+	for (; t < __stop_mos_tests; t++) {
+		if (prev_group == NULL || strcmp(prev_group, t->group) != 0) {
+			if (prev_group != NULL) {
+				PRINT_GROUP_END();
+			}
+			prev_group = t->group;
+			printf("GROUP: %s \n", t->group);
+			printf("================\n");
+			group_failures = 0;
+			group_items = 0;
+		}
+
+		int before = failures;
+		t->test_func();
+		group_items++;
+		if (failures != before) {
+			group_failures++;
+			printf("%s | FAILED\n", t->test_name);
+			continue;
+		}
+		printf("%s | OK\n", t->test_name);
+	}
+	if (prev_group != NULL) {
+		PRINT_GROUP_END();
+	}
 
 	if (failures)
 		fprintf(stderr, "\n%d check(s) failed\n", failures);

@@ -20,11 +20,17 @@ extern int failures;
 		}                                                                            \
 	} while (0)
 
-#define RUN(test)                                                                  \
-	do {                                                                       \
-		int before = failures;                                             \
-		test();                                                            \
-		printf("%-40s %s\n", #test, failures == before ? "ok" : "FAILED"); \
-	} while (0)
+struct __attribute__((aligned(16))) mos_test {
+	const char *test_name;
+	const char *group;
+	void (*test_func)(void);
+};
+
+#define TEST(func_name)                                                                   \
+	static void func_name(void);                                                      \
+	__attribute__((section("mos_tests"),                                              \
+		       __used__)) static const struct mos_test func_name##_entry = {      \
+		.test_name = #func_name, .group = __FILE_NAME__, .test_func = func_name}; \
+	static void func_name(void)
 
 #endif /* MOS_TEST_COMMON_H */

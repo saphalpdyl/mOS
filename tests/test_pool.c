@@ -4,14 +4,13 @@
  */
 
 #include <errno.h>
-#include <stddef.h>
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 
 #include "mos/pool.h"
 
 #include "test_common.h"
-#include "tests.h"
 
 #define N 8 /* small pool, so states are easy to reason about */
 
@@ -24,7 +23,7 @@ static void pool_setup(struct mos_pool *pool)
 
 /* ---------------------------------------------------------------- init / destroy */
 
-void test_init_rejects_bad_args(void)
+TEST(test_init_rejects_bad_args)
 {
 	struct mos_pool pool;
 
@@ -41,7 +40,7 @@ void test_init_rejects_bad_args(void)
 	CHECK(pool.n_free == 0);
 }
 
-void test_init_state(void)
+TEST(test_init_state)
 {
 	struct mos_pool pool;
 
@@ -58,7 +57,7 @@ void test_init_state(void)
 	mos_pool_destroy(&pool);
 }
 
-void test_destroy_twice_is_safe(void)
+TEST(test_destroy_twice_is_safe)
 {
 	struct mos_pool pool;
 
@@ -71,34 +70,64 @@ void test_destroy_twice_is_safe(void)
 
 /* ---------------------------------------------------------------- alloc */
 
-void test_alloc_is_lifo(void)
+TEST(test_alloc_is_lifo)
 {
 	struct mos_pool pool;
 
 	pool_setup(&pool);
 
 	/* free_idxs = [0..N-1], top is N-1 */
-	CHECK(mos_pool_malloc(&pool) == N - 1);
-	CHECK(mos_pool_malloc(&pool) == N - 2);
+	CHECK(mos_pool_alloc(&pool) == N - 1);
+	CHECK(mos_pool_alloc(&pool) == N - 2);
 	CHECK(pool.n_free == N - 2);
 
 	mos_pool_destroy(&pool);
 }
 
-void test_alloc_until_empty(void)
+TEST(test_alloc_until_empty)
 {
 	struct mos_pool pool;
 
 	pool_setup(&pool);
 
 	for (int i = 0; i < N; i++)
-		CHECK(mos_pool_malloc(&pool) >= 0);
+		CHECK(mos_pool_alloc(&pool) >= 0);
 	CHECK(pool.n_free == 0);
 
-	CHECK(mos_pool_malloc(&pool) == -ENOMEM);
+	CHECK(mos_pool_alloc(&pool) == -ENOMEM);
 	CHECK(pool.n_free == 0); /* a failed alloc changes nothing */
 
 	mos_pool_destroy(&pool);
+}
+
+TEST(test_alloc_batch)
+{
+	struct mos_pool pool;
+	pool_setup(&pool);
+
+	uint32_t *allocated_idx = calloc(MOS_POOL_MAX_BATCH_SIZE, sizeof(uint32_t));
+	int allocated_count = mos_pool_alloc_batch(&pool, allocated_idx, N);
+
+	CHECK(allocated_count == N);
+	CHECK(allocated_idx[N - 1] == 0);
+
+	free(allocated_idx);
+	CHECK(mos_pool_destroy(&pool) == 0);
+}
+
+TEST(test_alloc_batch_more_than_available)
+{
+	struct mos_pool pool;
+	pool_setup(&pool);
+
+	uint32_t *allocated_idx = calloc(MOS_POOL_MAX_BATCH_SIZE, sizeof(uint32_t));
+	int allocated_count = mos_pool_alloc_batch(&pool, allocated_idx, N + 5);
+
+	CHECK(allocated_count < N + 5);
+	CHECK(allocated_idx[N - 1] == 0);
+
+	free(allocated_idx);
+	CHECK(mos_pool_destroy(&pool) == 0);
 }
 
 /* ---------------------------------------------------------------- free */
@@ -108,14 +137,14 @@ void test_alloc_until_empty(void)
  * back first. The stale index left above n_free must not be handed out again
  * while its buffer is still in use.
  */
-void test_free_out_of_order(void)
+TEST(test_free_out_of_order)
 {
 	struct mos_pool pool;
 
 	pool_setup(&pool);
 
-	int a = mos_pool_malloc(&pool); /* N-1 */
-	int b = mos_pool_malloc(&pool); /* N-2 */
+	int a = mos_pool_alloc(&pool); /* N-1 */
+	int b = mos_pool_alloc(&pool); /* N-2 */
 	CHECK(a == N - 1);
 	CHECK(b == N - 2);
 
@@ -124,7 +153,7 @@ void test_free_out_of_order(void)
 	CHECK(pool.n_free == N - 1);
 
 	/* next alloc must give back a, NOT b (b is still in flight) */
-	int c = mos_pool_malloc(&pool);
+	int c = mos_pool_alloc(&pool);
 	CHECK(c == a);
 	CHECK(c != b);
 
@@ -139,7 +168,7 @@ void test_free_out_of_order(void)
  * Free everything in a scrambled order, then allocate everything again:
  * every index must come out exactly once (no duplicates, none lost).
  */
-void test_scrambled_free_then_realloc_all(void)
+TEST(test_scrambled_free_then_realloc_all)
 {
 	static const uint32_t order[N] = {5, 0, 7, 2, 6, 1, 4, 3};
 	int seen[N] = {0};
@@ -148,13 +177,13 @@ void test_scrambled_free_then_realloc_all(void)
 	pool_setup(&pool);
 
 	for (int i = 0; i < N; i++)
-		mos_pool_malloc(&pool);
+		mos_pool_alloc(&pool);
 	for (int i = 0; i < N; i++)
 		CHECK(mos_pool_free(&pool, order[i]) == 0);
 	CHECK(pool.n_free == N);
 
 	for (int i = 0; i < N; i++) {
-		int idx = mos_pool_malloc(&pool);
+		int idx = mos_pool_alloc(&pool);
 
 		CHECK(idx >= 0 && idx < N);
 		if (idx >= 0 && idx < N)
@@ -166,7 +195,7 @@ void test_scrambled_free_then_realloc_all(void)
 	mos_pool_destroy(&pool);
 }
 
-void test_free_into_full_pool_is_rejected(void)
+TEST(test_free_into_full_pool_is_rejected)
 {
 	struct mos_pool pool;
 
@@ -179,12 +208,12 @@ void test_free_into_full_pool_is_rejected(void)
 	mos_pool_destroy(&pool);
 }
 
-void test_free_invalid_index_is_rejected(void)
+TEST(test_free_invalid_index_is_rejected)
 {
 	struct mos_pool pool;
 
 	pool_setup(&pool);
-	mos_pool_malloc(&pool);
+	mos_pool_alloc(&pool);
 
 	CHECK(mos_pool_free(&pool, N) != 0); /* one past the end */
 	CHECK(mos_pool_free(&pool, UINT32_MAX) != 0);
@@ -193,16 +222,107 @@ void test_free_invalid_index_is_rejected(void)
 	mos_pool_destroy(&pool);
 }
 
+/* ---------------------------------------------------------------- free batch */
+
+/*
+ * Batch-free everything in a scrambled order, then allocate everything again:
+ * every index must come out exactly once. Also checks the batch really frees
+ * the indices it was given (LIFO: the last one freed is the next one out).
+ */
+TEST(test_free_batch_scrambled_then_realloc_all)
+{
+	static const uint32_t order[N] = {5, 0, 7, 2, 6, 1, 4, 3};
+	uint32_t idxs[N];
+	int seen[N] = {0};
+	struct mos_pool pool;
+
+	pool_setup(&pool);
+
+	CHECK(mos_pool_alloc_batch(&pool, idxs, N) == N);
+	CHECK(pool.n_free == 0);
+
+	memcpy(idxs, order, sizeof(idxs));
+	CHECK(mos_pool_free_batch(&pool, idxs, N) == 0);
+	CHECK(pool.n_free == N);
+
+	/* the free stack now holds `order` bottom to top */
+	CHECK(pool.free_idxs[N - 1] == order[N - 1]);
+
+	for (int i = 0; i < N; i++) {
+		int idx = mos_pool_alloc(&pool);
+
+		CHECK(idx >= 0 && idx < N);
+		if (idx >= 0 && idx < N)
+			seen[idx]++;
+	}
+	for (int i = 0; i < N; i++)
+		CHECK(seen[i] == 1);
+
+	mos_pool_destroy(&pool);
+}
+
+/*
+ * One bad index in the middle: it is skipped and counted, the valid ones
+ * around it are still freed.
+ */
+TEST(test_free_batch_skips_invalid_index)
+{
+	uint32_t idxs[3];
+	struct mos_pool pool;
+
+	pool_setup(&pool);
+
+	CHECK(mos_pool_alloc_batch(&pool, idxs, 3) == 3); /* N-1, N-2, N-3 */
+	CHECK(pool.n_free == N - 3);
+
+	idxs[1] = N; /* one past the end */
+	CHECK(mos_pool_free_batch(&pool, idxs, 3) == 1);
+	CHECK(pool.n_free == N - 1);
+
+	/* the last valid free is on top */
+	CHECK(mos_pool_alloc(&pool) == (int)idxs[2]);
+
+	mos_pool_destroy(&pool);
+}
+
+/* Nothing is allocated, so every free in the batch must be rejected. */
+TEST(test_free_batch_into_full_pool_is_rejected)
+{
+	uint32_t idxs[3] = {0, 1, 2};
+	struct mos_pool pool;
+
+	pool_setup(&pool);
+
+	CHECK(mos_pool_free_batch(&pool, idxs, 3) == 3);
+	CHECK(pool.n_free == N);
+
+	mos_pool_destroy(&pool);
+}
+
+TEST(test_free_batch_empty_is_noop)
+{
+	uint32_t idx;
+	struct mos_pool pool;
+
+	pool_setup(&pool);
+	mos_pool_alloc(&pool);
+
+	CHECK(mos_pool_free_batch(&pool, &idx, 0) == 0);
+	CHECK(pool.n_free == N - 1);
+
+	mos_pool_destroy(&pool);
+}
+
 /* ---------------------------------------------------------------- buffer state */
 
 /* A reused buffer must not keep the previous packet's offset/length. */
-void test_alloc_resets_buffer(void)
+TEST(test_alloc_resets_buffer)
 {
 	struct mos_pool pool;
 
 	pool_setup(&pool);
 
-	int idx = mos_pool_malloc(&pool);
+	int idx = mos_pool_alloc(&pool);
 	CHECK(idx >= 0);
 	if (idx < 0)
 		goto out;
@@ -212,7 +332,7 @@ void test_alloc_resets_buffer(void)
 	pool.bufs[idx].data_len = 99;
 	mos_pool_free(&pool, idx);
 
-	int again = mos_pool_malloc(&pool);
+	int again = mos_pool_alloc(&pool);
 	CHECK(again == idx); /* LIFO: same buffer comes back */
 	CHECK(pool.bufs[again].data_off == MOS_BUF_HEADROOM_SIZE);
 	CHECK(pool.bufs[again].data_len == 0);

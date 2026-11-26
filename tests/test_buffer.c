@@ -26,7 +26,7 @@ static void test_buffer_setup_with_pkt(struct mos_buffer *buf)
 	buf->data_len = TEST_BUFFER_PKT_SIZE;
 }
 
-void test_buffer_strip(void)
+TEST(test_buffer_strip)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
@@ -37,7 +37,7 @@ void test_buffer_strip(void)
 	CHECK(buf.data_off == MOS_BUF_HEADROOM_SIZE + TEST_BUFFER_STRIP_N);
 }
 
-void test_buffer_strip_invalid(void)
+TEST(test_buffer_strip_invalid)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
@@ -45,7 +45,7 @@ void test_buffer_strip_invalid(void)
 	CHECK(mos_buffer_strip_bytes(&buf, TEST_BUFFER_PKT_SIZE + 5) != 0);
 }
 
-void test_buffer_prepend(void)
+TEST(test_buffer_prepend)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
@@ -72,7 +72,7 @@ void test_buffer_prepend(void)
 	CHECK(matched == 1);
 }
 
-void test_buffer_prepend_invalid(void)
+TEST(test_buffer_prepend_invalid)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
@@ -87,7 +87,7 @@ void test_buffer_prepend_invalid(void)
 	CHECK(prev_len == buf.data_len);
 }
 
-void test_buffer_strip_then_prepend(void)
+TEST(test_buffer_strip_then_prepend)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
@@ -108,7 +108,7 @@ void test_buffer_strip_then_prepend(void)
 	CHECK(buf.data_off == MOS_BUF_HEADROOM_SIZE - 2);
 }
 
-void test_buffer_prepend_then_strip(void)
+TEST(test_buffer_prepend_then_strip)
 {
 	struct mos_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
