@@ -4,6 +4,7 @@
  */
 
 #include "mos/buffer.h"
+#include "mos/pool.h"
 
 int main(void)
 {

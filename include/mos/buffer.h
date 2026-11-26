@@ -10,18 +10,19 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MOS_BUF_MTD_SIZE_BYTES	    56
-#define MOS_BUF_SIZE_BYTES	    2048
-#define MOS_BUF_HEADROOM_SIZE_BYTES 128
-#define MOS_CACHE_LINE_SIZE	    64
+#include "mos/common.h"
+
+#define MOS_BUF_SCRATCH_SIZE  56
+#define MOS_BUF_DATA_SIZE     2048
+#define MOS_BUF_HEADROOM_SIZE 128
 
 struct __attribute__((aligned(MOS_CACHE_LINE_SIZE))) mos_buffer {
-	uint32_t curr_doffset;
-	uint32_t curr_len;
-	uint8_t scratch[MOS_BUF_MTD_SIZE_BYTES];
+	uint32_t data_off;
+	uint32_t data_len;
+	uint8_t scratch[MOS_BUF_SCRATCH_SIZE];
 
 	/* CACHE_LINE_BOUNDARY */
-	uint8_t data[MOS_BUF_HEADROOM_SIZE_BYTES + MOS_BUF_SIZE_BYTES];
+	uint8_t data[MOS_BUF_HEADROOM_SIZE + MOS_BUF_DATA_SIZE];
 };
 
 _Static_assert(sizeof(struct mos_buffer) == 2240,
@@ -33,7 +34,7 @@ _Static_assert(offsetof(struct mos_buffer, data) == MOS_CACHE_LINE_SIZE,
 	       "data should start at the cache line boundary i.e "
 	       "{MOS_CACHE_LINE_SIZE}B after the "
 	       "metadata");
-_Static_assert(((offsetof(struct mos_buffer, data) + MOS_BUF_HEADROOM_SIZE_BYTES) %
+_Static_assert(((offsetof(struct mos_buffer, data) + MOS_BUF_HEADROOM_SIZE) %
 		MOS_CACHE_LINE_SIZE) == 0,
 	       "packet start (data + headroom) must be cache-line aligned");
 
