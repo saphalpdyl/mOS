@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "mos/buffer.h"
+#include "mos/core/buffer.h"
 
 #include "test_common.h"
 
@@ -13,12 +13,12 @@
 #define TEST_BUFFER_STRIP_N   5
 #define TEST_BUFFER_PREPEND_N 5
 
-static void test_buffer_setup(struct mos_buffer *buf)
+static void test_buffer_setup(struct mlib_buffer *buf)
 {
-	mos_buffer_init(buf);
+	mlib_buffer_init(buf);
 }
 
-static void test_buffer_setup_with_pkt(struct mos_buffer *buf)
+static void test_buffer_setup_with_pkt(struct mlib_buffer *buf)
 {
 	test_buffer_setup(buf);
 
@@ -28,32 +28,32 @@ static void test_buffer_setup_with_pkt(struct mos_buffer *buf)
 
 TEST(test_buffer_strip)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 
-	CHECK(mos_buffer_strip_bytes(&buf, TEST_BUFFER_STRIP_N) == 0);
+	CHECK(mlib_buffer_strip_bytes(&buf, TEST_BUFFER_STRIP_N) == 0);
 
 	CHECK(buf.data_len == (TEST_BUFFER_PKT_SIZE - TEST_BUFFER_STRIP_N));
-	CHECK(buf.data_off == MOS_BUF_HEADROOM_SIZE + TEST_BUFFER_STRIP_N);
+	CHECK(buf.data_off == MLIB_BUF_HEADROOM_SIZE + TEST_BUFFER_STRIP_N);
 }
 
 TEST(test_buffer_strip_invalid)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 
-	CHECK(mos_buffer_strip_bytes(&buf, TEST_BUFFER_PKT_SIZE + 5) != 0);
+	CHECK(mlib_buffer_strip_bytes(&buf, TEST_BUFFER_PKT_SIZE + 5) != 0);
 }
 
 TEST(test_buffer_prepend)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 
-	void *ptr = mos_buffer_prepend_bytes(&buf, TEST_BUFFER_PREPEND_N);
+	void *ptr = mlib_buffer_prepend_bytes(&buf, TEST_BUFFER_PREPEND_N);
 	CHECK(ptr != NULL);
 
-	CHECK(buf.data_off == (MOS_BUF_HEADROOM_SIZE - TEST_BUFFER_PREPEND_N));
+	CHECK(buf.data_off == (MLIB_BUF_HEADROOM_SIZE - TEST_BUFFER_PREPEND_N));
 	CHECK(buf.data_len == TEST_BUFFER_PREPEND_N + TEST_BUFFER_PKT_SIZE);
 
 #ifndef NDEBUG
@@ -74,13 +74,13 @@ TEST(test_buffer_prepend)
 
 TEST(test_buffer_prepend_invalid)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 
 	uint32_t prev_off = buf.data_off;
 	uint32_t prev_len = buf.data_len;
 
-	void *ptr = mos_buffer_prepend_bytes(&buf, MOS_BUF_HEADROOM_SIZE + 1);
+	void *ptr = mlib_buffer_prepend_bytes(&buf, MLIB_BUF_HEADROOM_SIZE + 1);
 	CHECK(ptr == NULL);
 
 	CHECK(prev_off == buf.data_off);
@@ -89,14 +89,14 @@ TEST(test_buffer_prepend_invalid)
 
 TEST(test_buffer_strip_then_prepend)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 	/* length = 10; offset = 0*/
 
-	CHECK(mos_buffer_strip_bytes(&buf, 5) == 0);
+	CHECK(mlib_buffer_strip_bytes(&buf, 5) == 0);
 	/* length should decrease by 5, offset increase by 5*/
 
-	void *ptr = mos_buffer_prepend_bytes(&buf, 7);
+	void *ptr = mlib_buffer_prepend_bytes(&buf, 7);
 	CHECK(ptr != NULL);
 
 	/*length should increase by 7; offset should decrease by 7*/
@@ -105,26 +105,26 @@ TEST(test_buffer_strip_then_prepend)
 	/* length = 12; offset = 0*/
 
 	CHECK(buf.data_len == 12);
-	CHECK(buf.data_off == MOS_BUF_HEADROOM_SIZE - 2);
+	CHECK(buf.data_off == MLIB_BUF_HEADROOM_SIZE - 2);
 }
 
 TEST(test_buffer_prepend_then_strip)
 {
-	struct mos_buffer buf;
+	struct mlib_buffer buf;
 	test_buffer_setup_with_pkt(&buf);
 	/* length = 10; offset = 0*/
 
-	void *ptr = mos_buffer_prepend_bytes(&buf, 7);
+	void *ptr = mlib_buffer_prepend_bytes(&buf, 7);
 	CHECK(ptr != NULL);
 
 	/*length should increase by 7; offset should decrease by 7*/
 
-	CHECK(mos_buffer_strip_bytes(&buf, 5) == 0);
+	CHECK(mlib_buffer_strip_bytes(&buf, 5) == 0);
 	/* length should decrease by 5, offset increase by 5*/
 
 	/* delta length = increase by 2; delta offset = decrease by 2*/
 	/* length = 12; offset = 0*/
 
 	CHECK(buf.data_len == 12);
-	CHECK(buf.data_off == MOS_BUF_HEADROOM_SIZE - 2);
+	CHECK(buf.data_off == MLIB_BUF_HEADROOM_SIZE - 2);
 }

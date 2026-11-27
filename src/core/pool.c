@@ -3,13 +3,13 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/pool.h"
+#include "mos/core/pool.h"
 
 #include <errno.h>
 #include <stdlib.h>
 #include <string.h>
 
-int mos_pool_init(struct mos_pool *pool, uint32_t n_total)
+int mlib_pool_init(struct mlib_pool *pool, uint32_t n_total)
 {
 
 	if (!pool)
@@ -25,8 +25,8 @@ int mos_pool_init(struct mos_pool *pool, uint32_t n_total)
 		return -ENOMEM;
 	}
 
-	/* sizeof(struct mos_buffer) is a multiple of 64, as aligned_alloc requires. */
-	pool->bufs = aligned_alloc(MOS_CACHE_LINE_SIZE, n_total * sizeof(*pool->bufs));
+	/* sizeof(struct mlib_buffer) is a multiple of 64, as aligned_alloc requires. */
+	pool->bufs = aligned_alloc(MLIB_CACHE_LINE_SIZE, n_total * sizeof(*pool->bufs));
 	if (!pool->bufs) {
 		free(pool->free_idxs);
 		pool->free_idxs = NULL;
@@ -48,7 +48,7 @@ int mos_pool_init(struct mos_pool *pool, uint32_t n_total)
 	return 0;
 }
 
-int mos_pool_destroy(struct mos_pool *pool)
+int mlib_pool_destroy(struct mlib_pool *pool)
 {
 	if (!pool)
 		return -EINVAL;
@@ -61,7 +61,7 @@ int mos_pool_destroy(struct mos_pool *pool)
 	return 0;
 }
 
-int mos_pool_alloc(struct mos_pool *pool)
+int mlib_pool_alloc(struct mlib_pool *pool)
 {
 	if (!pool)
 		return -EINVAL;
@@ -71,18 +71,18 @@ int mos_pool_alloc(struct mos_pool *pool)
 
 	int idx = (int)pool->free_idxs[pool->n_free - 1];
 
-	mos_buffer_init(&pool->bufs[idx]);
+	mlib_buffer_init(&pool->bufs[idx]);
 
 	pool->n_free--;
 
 	return idx;
 }
 
-int mos_pool_alloc_batch(struct mos_pool *pool, uint32_t *idx_buf, size_t count)
+int mlib_pool_alloc_batch(struct mlib_pool *pool, uint32_t *idx_buf, size_t count)
 {
 	int allocated_n = 0;
 	for (size_t i = 0; i < count; i++) {
-		int idx = mos_pool_alloc(pool);
+		int idx = mlib_pool_alloc(pool);
 		if (idx < 0) {
 			/* Early return on failure */
 			return allocated_n;
@@ -95,19 +95,19 @@ int mos_pool_alloc_batch(struct mos_pool *pool, uint32_t *idx_buf, size_t count)
 	return allocated_n;
 }
 
-int mos_pool_free_batch(struct mos_pool *pool, uint32_t *idx_buf, size_t count)
+int mlib_pool_free_batch(struct mlib_pool *pool, uint32_t *idx_buf, size_t count)
 {
 	int failures = 0;
 
 	for (size_t i = 0; i < count; i++) {
-		if (mos_pool_free(pool, idx_buf[i]) != 0)
+		if (mlib_pool_free(pool, idx_buf[i]) != 0)
 			failures++;
 	}
 
 	return failures;
 }
 
-int mos_pool_free(struct mos_pool *pool, uint32_t idx)
+int mlib_pool_free(struct mlib_pool *pool, uint32_t idx)
 {
 	if (!pool)
 		return -EINVAL;

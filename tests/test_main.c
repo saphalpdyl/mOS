@@ -8,12 +8,12 @@
 
 #include "test_common.h"
 
-extern const struct mos_test __start_mos_tests[];
-extern const struct mos_test __stop_mos_tests[];
+extern const struct mtest __start_mtests[];
+extern const struct mtest __stop_mtests[];
 
 int main(void)
 {
-	const struct mos_test *t = __start_mos_tests;
+	const struct mtest *t = __start_mtests;
 	const char *prev_group = NULL;
 	int group_failures = 0;
 	int group_items = 0;
@@ -22,7 +22,7 @@ int main(void)
 	printf("\nGROUP %s: %d OK | %d FAILED \n\n", prev_group, group_items - group_failures, \
 	       group_failures)
 
-	for (; t < __stop_mos_tests; t++) {
+	for (; t < __stop_mtests; t++) {
 		if (prev_group == NULL || strcmp(prev_group, t->group) != 0) {
 			if (prev_group != NULL) {
 				PRINT_GROUP_END();

@@ -20,7 +20,7 @@ extern int failures;
 		}                                                                            \
 	} while (0)
 
-struct __attribute__((aligned(16))) mos_test {
+struct __attribute__((aligned(16))) mtest {
 	const char *test_name;
 	const char *group;
 	void (*test_func)(void);
@@ -28,8 +28,8 @@ struct __attribute__((aligned(16))) mos_test {
 
 #define TEST(func_name)                                                                   \
 	static void func_name(void);                                                      \
-	__attribute__((section("mos_tests"),                                              \
-		       __used__)) static const struct mos_test func_name##_entry = {      \
+	__attribute__((section("mtests"),                                             \
+		       __used__)) static const struct mtest func_name##_entry = {     \
 		.test_name = #func_name, .group = __FILE_NAME__, .test_func = func_name}; \
 	static void func_name(void)
 

@@ -3,12 +3,12 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/buffer.h"
+#include "mos/core/buffer.h"
 
 #include <errno.h>
 #include <string.h>
 
-int mos_buffer_strip_bytes(struct mos_buffer *buf, size_t n)
+int mlib_buffer_strip_bytes(struct mlib_buffer *buf, size_t n)
 {
 	if (!buf || n > buf->data_len)
 		return -EINVAL;
@@ -19,7 +19,7 @@ int mos_buffer_strip_bytes(struct mos_buffer *buf, size_t n)
 	return 0;
 }
 
-void *mos_buffer_prepend_bytes(struct mos_buffer *buf, size_t n)
+void *mlib_buffer_prepend_bytes(struct mlib_buffer *buf, size_t n)
 {
 	if (!buf || n > buf->data_off)
 		return NULL;

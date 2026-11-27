@@ -5,18 +5,19 @@ set(CMAKE_C_STANDARD 11)
 set(CMAKE_C_EXTENSIONS ON)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-add_library(fwdcore STATIC
-        include/mos/buffer.h
+add_library(mlib STATIC
+        include/mos/core/buffer.h
         src/core/buffer.c
-        include/mos/pool.h
+        include/mos/core/pool.h
         src/core/pool.c
+        include/mos/nodes/fifo.h
 )
-target_include_directories(fwdcore PUBLIC include)
-target_compile_options(fwdcore PUBLIC -Wall -Wextra -Wshadow -Werror -fsanitize=address,undefined -g)
-target_link_options(fwdcore PUBLIC -fsanitize=address,undefined)
+target_include_directories(mlib PUBLIC include)
+target_compile_options(mlib PUBLIC -Wall -Wextra -Wshadow -Werror -fsanitize=address,undefined -g)
+target_link_options(mlib PUBLIC -fsanitize=address,undefined)
 
 add_executable(mos main.c)
-target_link_libraries(mos PRIVATE fwdcore)
+target_link_libraries(mos PRIVATE mlib)
 
 #Host-side tests
 add_executable(fwd_tests
@@ -28,7 +29,7 @@ add_executable(fwd_tests
 )
 
 target_include_directories(fwd_tests PUBLIC tests)
-target_link_libraries(fwd_tests PRIVATE fwdcore)
+target_link_libraries(fwd_tests PRIVATE mlib)
 target_compile_options(fwd_tests PRIVATE -g)
 target_link_options(fwd_tests PRIVATE)
 

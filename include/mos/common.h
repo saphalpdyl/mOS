@@ -6,6 +6,7 @@
 #ifndef MOS_COMMON_H
 #define MOS_COMMON_H
 
-#define MOS_CACHE_LINE_SIZE 64
+#define MLIB_CACHE_LINE_SIZE 64
+#define MLIB_FRAME_MAX_SIZE  256
 
 #endif // MOS_COMMON_H
