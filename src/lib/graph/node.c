@@ -3,4 +3,4 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/nodes/node.h"
+#include "mos/lib/graph/node.h"

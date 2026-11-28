@@ -8,7 +8,7 @@
 
 #include "mos/common.h"
 
-#include "buffer.h"
+#include "mos/lib/core/buffer.h"
 
 #define MLIB_POOL_N 16384
 

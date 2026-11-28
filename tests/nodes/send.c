@@ -5,10 +5,10 @@
 
 #include <stdio.h>
 
-#include "mos/core/pool.h"
-#include "mos/nodes/frame.h"
-#include "mos/nodes/node.h"
-#include "mos/nodes/worker.h"
+#include "mos/lib/core/pool.h"
+#include "mos/lib/graph/frame.h"
+#include "mos/lib/graph/node.h"
+#include "mos/lib/graph/worker.h"
 
 static uint32_t send_process_frame(struct mlib_worker *, mlib_rte_handle_t, mlib_frame_handle_t);
 

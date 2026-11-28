@@ -3,7 +3,7 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/nodes/frame.h"
+#include "mos/lib/graph/frame.h"
 
 #include <errno.h>
 #include <stdlib.h>

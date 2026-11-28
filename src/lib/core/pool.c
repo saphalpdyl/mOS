@@ -3,7 +3,7 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/core/pool.h"
+#include "mos/lib/core/pool.h"
 
 #include <errno.h>
 #include <stdlib.h>

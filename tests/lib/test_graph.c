@@ -5,9 +5,9 @@
 
 #include <string.h>
 
-#include "mos/core/pool.h"
-#include "mos/nodes/frame.h"
-#include "mos/nodes/worker.h"
+#include "mos/lib/core/pool.h"
+#include "mos/lib/graph/frame.h"
+#include "mos/lib/graph/worker.h"
 
 #include "test_common.h"
 

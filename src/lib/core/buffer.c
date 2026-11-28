@@ -3,7 +3,7 @@
  * Copyright (c) 2026 saphalpdyl.
  */
 
-#include "mos/core/buffer.h"
+#include "mos/lib/core/buffer.h"
 
 #include <errno.h>
 #include <string.h>

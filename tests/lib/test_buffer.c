@@ -5,7 +5,7 @@
 
 #include <string.h>
 
-#include "mos/core/buffer.h"
+#include "mos/lib/core/buffer.h"
 
 #include "test_common.h"
 

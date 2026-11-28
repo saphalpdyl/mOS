@@ -7,8 +7,8 @@
 #define MOS_WORKER_H
 
 #include "mos/common.h"
-#include "mos/core/fifo.h"
-#include "mos/nodes/node.h"
+#include "mos/lib/core/fifo.h"
+#include "mos/lib/graph/node.h"
 
 #define MLIB_WORKER_MAX_RTES 256
 

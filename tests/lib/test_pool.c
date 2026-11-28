@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include "mos/core/pool.h"
+#include "mos/lib/core/pool.h"
 
 #include "test_common.h"
 

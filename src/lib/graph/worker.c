@@ -2,14 +2,14 @@
 /*
  * Copyright (c) 2026 saphalpdyl.
  */
-#include "mos/nodes/worker.h"
+#include "mos/lib/graph/worker.h"
 
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
 
-#include "mos/nodes/frame.h"
-#include "mos/nodes/node.h"
+#include "mos/lib/graph/frame.h"
+#include "mos/lib/graph/node.h"
 
 extern const struct mlib_node __start_mlib_nodes[]
 	__attribute__((weak)); // NOLINT(bugprone-reserved-identifier)
