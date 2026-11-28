@@ -55,6 +55,6 @@ int mlib_pool_alloc_batch(struct mlib_pool *pool, uint32_t *idx_buf, size_t coun
  * 	if (failures != 0)
  * 		// HANDLE ERROR
  */
-int mlib_pool_free_batch(struct mlib_pool *pool, uint32_t *idx_buf, size_t count);
+int mlib_pool_free_batch(struct mlib_pool *pool, const uint32_t *idx_buf, size_t count);
 
 #endif // MOS_POOL_H

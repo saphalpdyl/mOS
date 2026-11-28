@@ -15,7 +15,7 @@ extern int failures;
 	do {                                                                                 \
 		if (!(cond)) {                                                               \
 			fprintf(stderr, "%s:%d: %s: CHECK failed: %s\n", __FILE__, __LINE__, \
-				__func__, #cond);                                            \
+				__func__, #cond);                                           \
 			failures++;                                                          \
 		}                                                                            \
 	} while (0)

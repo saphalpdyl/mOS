@@ -15,6 +15,7 @@ typedef struct mlib_frame *mlib_frame_handle_t;
 typedef struct mlib_node const *mlib_node_handle_t;
 typedef struct mlib_rte *mlib_rte_handle_t;
 
-#define MLIB_RTE_HANDLE_NONE NULL
+#define MLIB_RTE_HANDLE_NONE   NULL
+#define MLIB_FRAME_HANDLE_NONE NULL
 
 #endif // MOS_COMMON_H

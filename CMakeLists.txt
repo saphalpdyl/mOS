@@ -17,6 +17,7 @@ add_library(mlib OBJECT
         include/mos/nodes/worker.h
         include/mos/core/fifo.h
         src/nodes/worker.c
+        src/nodes/drop.c
 )
 target_include_directories(mlib PUBLIC include)
 target_compile_options(mlib PUBLIC -Wall -Wextra -Wshadow -Werror -fsanitize=address,undefined -g)
@@ -32,6 +33,8 @@ add_executable(fwd_tests
         tests/test_pool.c
         tests/test_buffer.c
         tests/test_common.c
+        tests/nodes/send.c
+        tests/test_graph.c
 )
 
 target_include_directories(fwd_tests PUBLIC tests)

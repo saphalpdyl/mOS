@@ -29,7 +29,6 @@ struct __attribute__((aligned(MLIB_CACHE_LINE_SIZE))) mlib_node {
 
 	const char *nexts[MLIB_NODE_MAX_NEXT];
 	mlib_node_fn_t process_frame;
-	uint32_t n_nexts;
 };
 
 _Static_assert(__alignof(struct mlib_node) == MLIB_CACHE_LINE_SIZE,
